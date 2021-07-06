@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
@@ -6,21 +6,60 @@ import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 
-import Layout from "../components/Layout";
 import useSongs from "../hooks/useSongs";
+import Paper from "@material-ui/core/Paper";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import { CircularProgress, LinearProgress } from "@material-ui/core";
 
-const SongsPage = () => {
-  const [archived, setArchived] = useState(false);
-  const [songs, error] = useSongs({ archived });
+export interface ISongPageProps {
+  tab?: number;
+  archived?: boolean;
+  setState: (args: Partial<ISongPageProps>) => void;
+}
+
+const SongsPage: React.FC<ISongPageProps> = ({
+  tab = 0,
+  archived = false,
+  setState,
+}) => {
+  const [songs, error, loading] = useSongs({ archived });
+  const handleTabChange = (i) => {
+    setState({ tab: i, archived: i >= 2 });
+  };
+
   return (
-    <Layout>
-      <button onClick={() => setArchived((v) => !v)}>Toggle archived</button>
+    <div>
+      <Paper square elevation={2} style={{ margin: "1.5rem 0" }}>
+        <Tabs
+          value={tab}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          onChange={(_, i) => handleTabChange(i)}
+          aria-label="disabled tabs example"
+        >
+          <Tab label="Category A" />
+          <Tab label="Hymns" />
+          <Tab label="Archived Songs" />
+          <Tab label="Archived Hymns" />
+        </Tabs>
+      </Paper>
+
       {error && <p>{error}</p>}
       <TableContainer>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Title</TableCell>
+              <TableCell>
+                <span>Title</span>
+                {loading && (
+                  <CircularProgress
+                    size="1rem"
+                    style={{ marginLeft: "1rem" }}
+                  />
+                )}
+              </TableCell>
               <TableCell align="right">Artist</TableCell>
               <TableCell align="right">Key</TableCell>
             </TableRow>
@@ -38,7 +77,7 @@ const SongsPage = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </Layout>
+    </div>
   );
 };
 
