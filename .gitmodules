@@ -1,0 +1,3 @@
+[submodule "songs-api-spec"]
+	path = songs-api-spec
+	url = git@github.com:callumjg/songs-api-spec.git

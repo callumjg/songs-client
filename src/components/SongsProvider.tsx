@@ -11,6 +11,7 @@ export interface ISong {
   author?: string;
   songSelectId?: string;
   isArchived?: boolean;
+  tags?: string[];
 }
 
 export interface IGetSongsParams {

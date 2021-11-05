@@ -10,12 +10,17 @@ import useSongs from "../hooks/useSongs";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { CircularProgress, LinearProgress } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
 
 export interface ISongPageProps {
   tab?: number;
   archived?: boolean;
   setState: (args: Partial<ISongPageProps>) => void;
+}
+
+enum Category {
+  A = "Category A",
+  B = "Category B (Hymn)",
 }
 
 const SongsPage: React.FC<ISongPageProps> = ({
@@ -27,10 +32,14 @@ const SongsPage: React.FC<ISongPageProps> = ({
   const handleTabChange = (i) => {
     setState({ tab: i, archived: i >= 2 });
   };
+  const isCatA = tab === 0 || tab === 2;
+  const filteredSongs = songs.filter((song) =>
+    song.tags?.includes(isCatA ? Category.A : Category.B)
+  );
 
   return (
-    <div>
-      <Paper square elevation={2} style={{ margin: "1.5rem 0" }}>
+    <div style={{ margin: "3rem 0" }}>
+      <Paper square elevation={3} style={{ margin: "1.5rem 0" }}>
         <Tabs
           value={tab}
           indicatorColor="primary"
@@ -65,7 +74,7 @@ const SongsPage: React.FC<ISongPageProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {songs.map((song) => (
+            {filteredSongs.map((song) => (
               <TableRow key={song.id}>
                 <TableCell component="th" scope="song">
                   {song.title}
