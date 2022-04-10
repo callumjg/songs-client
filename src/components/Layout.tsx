@@ -1,7 +1,7 @@
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React from "react";
 
 export const ROUTES = {
@@ -21,7 +21,7 @@ const links = [
 ];
 
 const Layout = ({ children }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -32,7 +32,7 @@ const Layout = ({ children }) => {
           <div style={{ flex: 1 }}></div>
           <div>
             {links.map(({ title, path }) => (
-              <Button onClick={() => history.push(path)} color="inherit">
+              <Button onClick={() => navigate(path)} color="inherit">
                 {title}
               </Button>
             ))}

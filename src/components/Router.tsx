@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ServicesPage from "../pages/ServicesPage";
 import SongsPage, { ISongPageProps } from "../pages/SongsPage";
 import Layout, { ROUTES } from "./Layout";
@@ -13,14 +13,15 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Layout>
-        <Switch>
-          <Route path={ROUTES.services}>
-            <ServicesPage />
-          </Route>
-          <Route path={ROUTES.songs}>
-            <SongsPage {...songPageSettings} setState={setSongsState} />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path={ROUTES.services} element={<ServicesPage />} />
+          <Route
+            path={ROUTES.songs}
+            element={
+              <SongsPage {...songPageSettings} setState={setSongsState} />
+            }
+          />
+        </Routes>
       </Layout>
     </BrowserRouter>
   );
