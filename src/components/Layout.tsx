@@ -7,6 +7,7 @@ import React from "react";
 export const ROUTES = {
   songs: "/",
   services: "/services",
+  songDetail: (id?: number) => `/songs/${id || ":id"}`,
 };
 
 const links = [

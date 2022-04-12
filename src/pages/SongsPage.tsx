@@ -11,6 +11,8 @@ import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import { CircularProgress } from "@material-ui/core";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../components/Layout";
 
 export interface ISongPageProps {
   tab?: number;
@@ -29,6 +31,7 @@ const SongsPage: React.FC<ISongPageProps> = ({
   setState,
 }) => {
   const [songs, error, loading] = useSongs({ archived });
+  const navigate = useNavigate();
   const handleTabChange = (i) => {
     setState({ tab: i, archived: i >= 2 });
   };
@@ -75,7 +78,10 @@ const SongsPage: React.FC<ISongPageProps> = ({
           </TableHead>
           <TableBody>
             {filteredSongs.map((song) => (
-              <TableRow key={song.id}>
+              <TableRow
+                key={song.id}
+                onClick={() => navigate(ROUTES.songDetail(song.id))}
+              >
                 <TableCell component="th" scope="song">
                   {song.title}
                 </TableCell>
