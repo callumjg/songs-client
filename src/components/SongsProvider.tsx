@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import api from "../apis/api";
-import { Song } from "../apis/songs-api";
+import { Song, Songs } from "../apis/songs-api";
 // imp
 import Cache from "../utils/Cache";
 
@@ -24,25 +24,35 @@ const SONGS_URL = "/songs";
 
 interface ISongProviderValue {
   list: (params: IListSongsParams) => Promise<Song[]>;
-  cache: Cache<Song[]>;
+  getById: (id: number) => Promise<Song>;
+  listSongsCache: Cache<Song[]>;
+  getByIdCache: Cache<Song>;
 }
 
 export const SongsContext = createContext({} as ISongProviderValue);
 
-const cache = new Cache<Song[]>();
+const listSongsCache = new Cache<Song[]>();
+const getByIdCache = new Cache<Song>();
 
 const list = async (params: IListSongsParams): Promise<Song[]> => {
   const response = await api.get(SONGS_URL, {
     params,
   });
 
-  return response?.data?.songs;
+  return response?.data?.songs.map((s) => ({ id: s.songId, ...s }));
+};
+
+const getById = async (id: number): Promise<Song> => {
+  const response = await api.get(`${SONGS_URL}/${id}`);
+  return response.data;
 };
 
 const SongsProvider = ({ children }) => {
   const value: ISongProviderValue = {
     list,
-    cache,
+    getById,
+    listSongsCache,
+    getByIdCache,
   };
 
   return (

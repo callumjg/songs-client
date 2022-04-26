@@ -13,6 +13,9 @@ export interface User {
   email: string;
 }
 
+/**
+ * A song
+ */
 export interface Song {
   id?: number;
   title: string;
@@ -25,45 +28,28 @@ export interface Song {
   tags?: string[];
 }
 
-export namespace Users {
-  /**
-   * @description Create a user
-   * @name UsersCreate
-   * @request POST:/users
-   * @response `201` `void` OK
-   */
-  export namespace UsersCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = void;
-  }
-  /**
-   * @description Gets a user
-   * @name UsersDetail
-   * @request GET:/users/{id}
-   * @response `200` `void` OK
-   */
-  export namespace UsersDetail {
-    export type RequestParams = { id: number };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = void;
-  }
+/**
+ * A service of songs
+ */
+export interface Service {
+  id?: number;
+
+  /** @format date-time */
+  date: string;
+  songs?: number[];
+  notes?: string[];
 }
 
 export namespace Songs {
   /**
    * @description Gets a list of songs
-   * @name SongsList
+   * @name ListSongs
    * @request GET:/songs
    * @response `200` `{ songs: (Song)[] }`
    * @response `400` `{ message: string }`
    * @response `500` `{ message: string }`
    */
-  export namespace SongsList {
+  export namespace ListSongs {
     export type RequestParams = {};
     export type RequestQuery = { archived?: boolean; deleted?: boolean };
     export type RequestBody = never;
@@ -72,14 +58,14 @@ export namespace Songs {
   }
   /**
    * @description Create a song
-   * @name SongsCreate
+   * @name CreateSong
    * @request POST:/songs
    * @response `201` `void` OK
    * @response `400` `{ message: string }`
    * @response `404` `{ message: string }`
    * @response `500` `{ message: string }`
    */
-  export namespace SongsCreate {
+  export namespace CreateSong {
     export type RequestParams = {};
     export type RequestQuery = {};
     export type RequestBody = Song;
@@ -88,13 +74,13 @@ export namespace Songs {
   }
   /**
    * @description Get a song by id
-   * @name SongsDetail
+   * @name GetSongById
    * @request GET:/songs/{id}
    * @response `200` `void` OK
    * @response `400` `{ message: string }`
    * @response `500` `{ message: string }`
    */
-  export namespace SongsDetail {
+  export namespace GetSongById {
     export type RequestParams = { id: number };
     export type RequestQuery = {};
     export type RequestBody = never;
@@ -103,14 +89,14 @@ export namespace Songs {
   }
   /**
    * @description Update a song
-   * @name SongsUpdate
-   * @request PUT:/songs/{id}
+   * @name UpdateSongById
+   * @request PATCH:/songs/{id}
    * @response `204` `void` OK
    * @response `400` `{ message: string }`
    * @response `404` `{ message: string }`
    * @response `500` `{ message: string }`
    */
-  export namespace SongsUpdate {
+  export namespace UpdateSongById {
     export type RequestParams = { id: number };
     export type RequestQuery = {};
     export type RequestBody = Song;
@@ -119,15 +105,31 @@ export namespace Songs {
   }
   /**
    * @description Delete a song
-   * @name SongsDelete
+   * @name DeleteSongById
    * @request DELETE:/songs/{id}
    * @response `204` `void` OK
    * @response `400` `{ message: string }`
    * @response `404` `{ message: string }`
    * @response `500` `{ message: string }`
    */
-  export namespace SongsDelete {
+  export namespace DeleteSongById {
     export type RequestParams = { id: number };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Services {
+  /**
+   * @description Get a list of services
+   * @name ListServices
+   * @request GET:/services
+   * @response `200` `void` OK
+   */
+  export namespace ListServices {
+    export type RequestParams = {};
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
