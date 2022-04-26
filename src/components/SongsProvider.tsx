@@ -1,20 +1,8 @@
 import { createContext } from "react";
 import api from "../apis/api";
-import { Song, Songs } from "../apis/songs-api";
-// imp
-import Cache from "../utils/Cache";
+import { Song } from "../apis/songs-api";
 
-// export interface ISong {
-//   id?: number;
-//   title: string;
-//   url?: string;
-//   key?: string;
-//   tempo?: string;
-//   author?: string;
-//   songSelectId?: string;
-//   isArchived?: boolean;
-//   tags?: string[];
-// }
+import Cache from "../utils/Cache";
 
 export interface IListSongsParams {
   deleted?: boolean;
@@ -44,9 +32,7 @@ const list = async (params: IListSongsParams): Promise<Song[]> => {
 
 const getById = async (id: number): Promise<Song> => {
   const response = await api.get(`${SONGS_URL}/${id}`);
-  const data: Songs.GetSongById.ResponseBody | undefined = response;
-
-  return data && { id: data.songId, ...data };
+  return response.data;
 };
 
 const SongsProvider = ({ children }) => {

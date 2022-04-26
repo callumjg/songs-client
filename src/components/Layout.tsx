@@ -3,6 +3,7 @@ import Container from "@material-ui/core/Container";
 import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import React from "react";
+import "./Layout.scss";
 
 export const ROUTES = {
   songs: "/",
@@ -25,23 +26,23 @@ const Layout = ({ children }) => {
   const navigate = useNavigate();
 
   return (
-    <>
+    <div className="sc-layout-container">
       <CssBaseline />
-      <AppBar position="static">
+      <AppBar position="relative">
         <Toolbar>
           <Typography variant="h6">GPC Songs</Typography>
           <div style={{ flex: 1 }}></div>
           <div>
             {links.map(({ title, path }) => (
-              <Button onClick={() => navigate(path)} color="inherit">
+              <Button key={path} onClick={() => navigate(path)} color="inherit">
                 {title}
               </Button>
             ))}
           </div>
         </Toolbar>
       </AppBar>
-      <Container>{children}</Container>
-    </>
+      <Container style={{ flex: "1" }}>{children}</Container>
+    </div>
   );
 };
 export default Layout;
