@@ -10,9 +10,9 @@ import useSongs from "../hooks/useSongs";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { CircularProgress } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../components/Layout";
+import PageSpinner from "../components/PageSpinner";
 
 export interface ISongPageProps {
   tab?: number;
@@ -20,7 +20,7 @@ export interface ISongPageProps {
   setState: (args: Partial<ISongPageProps>) => void;
 }
 
-enum Category {
+const enum Category {
   A = "Category A",
   B = "Category B (Hymn)",
 }
@@ -32,67 +32,62 @@ const SongsPage: React.FC<ISongPageProps> = ({
 }) => {
   const [songs, error, loading] = useSongs({ archived });
   const navigate = useNavigate();
-  const handleTabChange = (i) => {
-    setState({ tab: i, archived: i >= 2 });
-  };
+  const handleTabChange = (i) => setState({ tab: i, archived: i >= 2 });
+
   const isCatA = tab === 0 || tab === 2;
   const filteredSongs = songs.filter((song) =>
     song.tags?.includes(isCatA ? Category.A : Category.B)
   );
 
   return (
-    <div style={{ margin: "3rem 0" }}>
-      <Paper square elevation={3} style={{ margin: "1.5rem 0" }}>
-        <Tabs
-          value={tab}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-          onChange={(_, i) => handleTabChange(i)}
-          aria-label="disabled tabs example"
-        >
-          <Tab label="Category A" />
-          <Tab label="Hymns" />
-          <Tab label="Archived Songs" />
-          <Tab label="Archived Hymns" />
-        </Tabs>
-      </Paper>
+    <PageSpinner loading={loading}>
+      <div style={{ margin: "3rem 0" }}>
+        <Paper square elevation={3} style={{ margin: "1.5rem 0" }}>
+          <Tabs
+            value={tab}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+            onChange={(_, i) => handleTabChange(i)}
+            aria-label="disabled tabs example"
+          >
+            <Tab label="Category A" />
+            <Tab label="Hymns" />
+            <Tab label="Archived Songs" />
+            <Tab label="Archived Hymns" />
+          </Tabs>
+        </Paper>
 
-      {error && <p>{error}</p>}
-      <TableContainer>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <span>Title</span>
-                {loading && (
-                  <CircularProgress
-                    size="1rem"
-                    style={{ marginLeft: "1rem" }}
-                  />
-                )}
-              </TableCell>
-              <TableCell align="right">Artist</TableCell>
-              <TableCell align="right">Key</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredSongs.map((song) => (
-              <TableRow
-                key={song.id}
-                onClick={() => navigate(ROUTES.songDetail(song.id))}
-              >
-                <TableCell component="th" scope="song">
-                  {song.title}
+        {error && <p>{error}</p>}
+        <TableContainer>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <span>Title</span>
                 </TableCell>
-                <TableCell align="right">{song.author}</TableCell>
-                <TableCell align="right">{song.key}</TableCell>
+                <TableCell align="right">Artist</TableCell>
+                <TableCell align="right">Key</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
+            </TableHead>
+            <TableBody>
+              {filteredSongs.map((song) => (
+                <TableRow
+                  key={song.id}
+                  onClick={() => navigate(ROUTES.songDetail(song.id))}
+                >
+                  <TableCell component="th" scope="song">
+                    {song.title}
+                  </TableCell>
+                  <TableCell align="right">{song.author}</TableCell>
+                  <TableCell align="right">{song.key}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    </PageSpinner>
   );
 };
 
