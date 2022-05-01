@@ -1,22 +1,35 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { Song } from "../apis/songs-api";
-import { IListSongsParams, SongsContext } from "../components/SongsProvider";
+import { SongsContext } from "../components/SongsProvider";
+
+interface IUseSongOptions {
+  refreshOnLoad?: boolean;
+}
+
+const defaultOptions: IUseSongOptions = {
+  refreshOnLoad: true,
+};
 
 const useSong = (
-  id: number
+  id: string,
+  opt?: IUseSongOptions
 ): [Song | undefined, string | undefined, boolean] => {
+  const options: IUseSongOptions = { ...defaultOptions, ...opt };
   const [song, setSong] = useState<Song>();
   const [error, setError] = useState<string | undefined>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { getById, getByIdCache } = useContext(SongsContext);
 
   useEffect(() => {
     (async () => {
       setError(undefined);
-      const stale = getByIdCache.get(String(id));
-      if (stale) setSong(stale);
-      setLoading(true);
+      const stale = getByIdCache.get(id);
+      if (stale) {
+        setSong(stale);
+        setLoading(false);
+      }
+      if (stale && !options.refreshOnLoad) return;
       try {
         const fetchedSong = await getById(id);
         getByIdCache.set(String(id), fetchedSong);

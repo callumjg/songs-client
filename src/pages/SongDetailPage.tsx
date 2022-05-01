@@ -13,7 +13,7 @@ import useSong from "../hooks/useSong";
 const SongDetailPage: React.FC = () => {
   const { id } = useParams();
 
-  const [song, error, loading] = useSong(Number(id));
+  const [song, error, loading] = useSong(id || "");
 
   const songSelectUrl: string | undefined =
     song?.songSelectId &&

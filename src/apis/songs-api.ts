@@ -17,7 +17,8 @@ export interface User {
  * A song
  */
 export interface Song {
-  id?: number;
+  /** @format uuid */
+  id?: string;
   title: string;
   url?: string;
   key?: string;
@@ -32,11 +33,9 @@ export interface Song {
  * A service of songs
  */
 export interface Service {
-  id?: number;
-
   /** @format date-time */
   date: string;
-  songs?: number[];
+  songs?: string[];
   notes?: string[];
 }
 
@@ -81,7 +80,7 @@ export namespace Songs {
    * @response `500` `{ message: string }`
    */
   export namespace GetSongById {
-    export type RequestParams = { id: number };
+    export type RequestParams = { id: string };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -97,7 +96,7 @@ export namespace Songs {
    * @response `500` `{ message: string }`
    */
   export namespace UpdateSongById {
-    export type RequestParams = { id: number };
+    export type RequestParams = { id: string };
     export type RequestQuery = {};
     export type RequestBody = Song;
     export type RequestHeaders = {};
@@ -113,7 +112,7 @@ export namespace Songs {
    * @response `500` `{ message: string }`
    */
   export namespace DeleteSongById {
-    export type RequestParams = { id: number };
+    export type RequestParams = { id: string };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -123,12 +122,29 @@ export namespace Songs {
 
 export namespace Services {
   /**
-   * @description Get a list of services
+   * @description Gets a list of services
    * @name ListServices
    * @request GET:/services
-   * @response `200` `void` OK
+   * @response `200` `{ services: (Service)[] }`
+   * @response `400` `{ message: string }`
+   * @response `500` `{ message: string }`
    */
   export namespace ListServices {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = { services: Service[] };
+  }
+  /**
+   * @description Sync services with google sheets
+   * @name SyncServices
+   * @request POST:/services/sync
+   * @response `204` `void` OK
+   * @response `400` `{ message: string }`
+   * @response `500` `{ message: string }`
+   */
+  export namespace SyncServices {
     export type RequestParams = {};
     export type RequestQuery = {};
     export type RequestBody = never;

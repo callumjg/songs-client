@@ -12,7 +12,7 @@ const SONGS_URL = "/songs";
 
 interface ISongProviderValue {
   list: (params: IListSongsParams) => Promise<Song[]>;
-  getById: (id: number) => Promise<Song>;
+  getById: (id: string) => Promise<Song>;
   listSongsCache: Cache<Song[]>;
   getByIdCache: Cache<Song>;
 }
@@ -27,10 +27,10 @@ const list = async (params: IListSongsParams): Promise<Song[]> => {
     params,
   });
 
-  return response?.data?.songs.map((s) => ({ id: s.songId, ...s }));
+  return response?.data?.songs;
 };
 
-const getById = async (id: number): Promise<Song> => {
+const getById = async (id: string): Promise<Song> => {
   const response = await api.get(`${SONGS_URL}/${id}`);
   return response.data;
 };

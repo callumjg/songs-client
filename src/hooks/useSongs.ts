@@ -8,8 +8,8 @@ const useSongs = ({ archived, deleted }: IListSongsParams = {}): [
   string | null,
   boolean
 ] => {
-  const [songs, setSongs] = useState([] as Song[]);
-  const [error, setError] = useState(null as string | null);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { list, listSongsCache } = useContext(SongsContext);
 
@@ -19,8 +19,11 @@ const useSongs = ({ archived, deleted }: IListSongsParams = {}): [
       const par = { deleted, archived };
       const parJson = JSON.stringify(par);
       const stale = listSongsCache.get(parJson);
-      if (stale) setSongs(stale);
-      setLoading(true);
+      if (stale) {
+        setSongs(stale);
+      } else {
+        setLoading(true);
+      }
       try {
         const fetchedSongs = await list(par);
         listSongsCache.set(parJson, fetchedSongs);

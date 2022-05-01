@@ -8,7 +8,7 @@ import "./Layout.scss";
 export const ROUTES = {
   songs: "/",
   services: "/services",
-  songDetail: (id?: number) => `/songs/${id || ":id"}`,
+  songDetail: (id?: string) => `/songs/${id || ":id"}`,
 };
 
 const links = [
