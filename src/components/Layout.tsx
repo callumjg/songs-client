@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useContext, useState } from "react";
 import "./Layout.scss";
 import api from "../apis/api";
-import ServicesProvider, { ServicesContext } from "./ServicesProvider";
+import { ServicesContext } from "./ServicesProvider";
 
 export const ROUTES = {
   songs: "/",

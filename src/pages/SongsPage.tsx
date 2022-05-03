@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
 
 import useSongs from "../hooks/useSongs";
 import Paper from "@material-ui/core/Paper";
@@ -16,7 +17,6 @@ import PageSpinner from "../components/PageSpinner";
 import useSongHistory from "../hooks/useSongHistory";
 import { Song } from "../apis/songs-api";
 import moment from "moment";
-import { TableSortLabel } from "@material-ui/core";
 
 type SortDirection = 1 | -1 | undefined;
 
