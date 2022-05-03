@@ -33,6 +33,8 @@ export interface Song {
  * A service of songs
  */
 export interface Service {
+  id?: number;
+
   /** @format date-time */
   date: string;
   songs?: string[];

@@ -2,14 +2,12 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ServicesPage from "../pages/ServicesPage";
 import SongDetailPage from "../pages/SongDetailPage";
-import SongsPage, { ISongPageProps } from "../pages/SongsPage";
+import SongsPage, { SongPageProps } from "../pages/SongsPage";
 import Layout, { ROUTES } from "./Layout";
 
 const Router = () => {
-  const [songPageSettings, setSongPageSettings] = useState(
-    {} as ISongPageProps
-  );
-  const setSongsState = (props: Partial<ISongPageProps>): void =>
+  const [songPageSettings, setSongPageSettings] = useState({} as SongPageProps);
+  const setSongsState = (props: Partial<SongPageProps>): void =>
     setSongPageSettings({ ...songPageSettings, ...props });
   return (
     <BrowserRouter>

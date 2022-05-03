@@ -9,7 +9,7 @@ const useServices = (): [Service[], string | null, boolean] => {
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
-  const { list, listServicesCache } = useContext(ServicesContext);
+  const { list, listServicesCache, nonce } = useContext(ServicesContext);
 
   useEffect(() => {
     (async () => {
@@ -34,7 +34,7 @@ const useServices = (): [Service[], string | null, boolean] => {
         setLoading(false);
       }
     })();
-  }, [listServicesCache, list]);
+  }, [listServicesCache, list, nonce]);
 
   return [services, error, loading];
 };

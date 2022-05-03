@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useState } from "react";
 import api from "../apis/api";
 import { Service } from "../apis/songs-api";
 
@@ -8,7 +8,9 @@ const SERVICES_URL = "/services";
 
 interface IServiceProviderValue {
   list: () => Promise<Service[]>;
+  nonce: number;
   listServicesCache: Cache<Service[]>;
+  expireAll: () => void;
 }
 
 export const ServicesContext = createContext({} as IServiceProviderValue);
@@ -24,9 +26,17 @@ const list = async (): Promise<Service[]> => {
 };
 
 const ServicesProvider = ({ children }) => {
+  const [nonce, setNonce] = useState(0);
+
+  const expireAll = () => {
+    listServicesCache.clearAll();
+    setNonce((n) => n + 1);
+  };
   const value: IServiceProviderValue = {
     list,
     listServicesCache,
+    expireAll,
+    nonce,
   };
 
   return (

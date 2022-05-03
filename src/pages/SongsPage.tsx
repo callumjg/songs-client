@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
@@ -18,10 +18,23 @@ import { Song } from "../apis/songs-api";
 import moment from "moment";
 import { TableSortLabel } from "@material-ui/core";
 
-export interface ISongPageProps {
+type SortDirection = 1 | -1 | undefined;
+
+interface SongWithMetrics extends Song {
+  playsLast6Months?: number;
+  wksSincePlayed?: number;
+}
+
+type SortFn = (
+  dir: SortDirection
+) => ((a: SongWithMetrics, b: SongWithMetrics) => number) | undefined;
+export interface SongPageProps {
   tab?: number;
   archived?: boolean;
-  setState: (args: Partial<ISongPageProps>) => void;
+  sortBy?: string | undefined;
+  sortDirection?: SortDirection;
+  sortFn?: SortFn;
+  setState: (args: Partial<SongPageProps>) => void;
 }
 
 const enum Category {
@@ -29,67 +42,100 @@ const enum Category {
   B = "Category B (Hymn)",
 }
 
-interface IHeaderCell {
+interface SongTableHeaderCell {
   display: string;
   id: string;
   align?: "left" | "right";
-  sort?: (a: Song, b: Song) => number;
+  sort?: SortFn;
 }
-const tableHeaderCells: IHeaderCell[] = [
+
+const sortByStrings = (a: string | undefined, b: string | undefined): number =>
+  (a?.toLowerCase() || "") > (b?.toLowerCase() || "") ? 1 : -1;
+
+const sortByNumbers = (a: number | undefined, b: number | undefined): number =>
+  (a || 0) - (b || 0);
+
+const tableHeaderCells: SongTableHeaderCell[] = [
   {
     display: "Title",
     id: "Title",
+    sort: (dir) => (a, b) => (dir || 1) * sortByStrings(a.title, b.title),
+  },
+  {
+    display: "Artist",
+    id: "Artist",
+    sort: (dir) => (a, b) => (dir || 1) * sortByStrings(a.author, b.author),
+    align: "right",
+  },
+  {
+    display: "Plays last 6mths",
+    id: "Plays last 6mths",
+    sort: (dir) => (a, b) =>
+      (dir || 1) * sortByNumbers(a.playsLast6Months, b.playsLast6Months),
+    align: "right",
+  },
+  {
+    display: "Wks since played",
+    id: "Wks since played",
+    sort: (dir) => (a, b) =>
+      (dir || 1) * sortByNumbers(a.wksSincePlayed, b.wksSincePlayed),
+    align: "right",
+  },
+  {
+    display: "Key",
+    id: "Key",
+    sort: (dir) => (a, b) => (dir || 1) * sortByStrings(a.key, b.key),
+    align: "right",
   },
 ];
 
-const SongsPage: React.FC<ISongPageProps> = ({
+const SongsPage: React.FC<SongPageProps> = ({
   tab = 0,
   archived = false,
+  sortBy,
+  sortDirection,
+  sortFn,
   setState,
 }) => {
   const [songs, error, loading] = useSongs({ archived });
   const [songHistory, songHistoryError, songHistoryLoading] = useSongHistory();
-  const [sortBy, setSortBy] = useState<string | undefined>();
-  const [sortDirection, setSortDirection] = useState<
-    "asc" | "desc" | undefined
-  >();
-  const [sortFn, setSortFn] = useState<
-    ((a: Song, b: Song) => number) | undefined
-  >();
+
+  const rows = useMemo<SongWithMetrics[]>(() => {
+    if (Object.keys(songHistory).length < 0 || songs.length < 1) return [];
+
+    const isCatA = tab === 0 || tab === 2;
+
+    const filteredSongs = songs
+      .filter((song) => song.tags?.includes(isCatA ? Category.A : Category.B))
+      .map((song) => {
+        const songWithMetrics: SongWithMetrics = song;
+        const services = songHistory[song.id || ""] || [];
+        const today = moment();
+        if (services[0]) {
+          const lastService = moment(services[0]);
+          songWithMetrics.wksSincePlayed = today.diff(lastService, "week");
+
+          const sixMonthsAgo = today.subtract(6, "months");
+          const includedServices = (songHistory[song.id || ""] || []).filter(
+            (s) => moment(s).isAfter(sixMonthsAgo)
+          );
+          songWithMetrics.playsLast6Months = includedServices.length;
+        }
+        return songWithMetrics;
+      });
+
+    return !sortFn ? filteredSongs : filteredSongs.sort(sortFn(sortDirection));
+  }, [songs, songHistory, tab, sortFn, sortDirection]);
+
   const navigate = useNavigate();
   const handleTabChange = (i) => setState({ tab: i, archived: i >= 2 });
 
-  const isCatA = tab === 0 || tab === 2;
-  const filteredSongs = songs.filter((song) =>
-    song.tags?.includes(isCatA ? Category.A : Category.B)
-  );
-
-  const sortedSongs = !sortFn ? filteredSongs : filteredSongs.sort(sortFn);
-  const getWksSincePlayed = (song: Song): number | undefined => {
-    const services = songHistory[song.id || ""] || [];
-    if (!services[0]) {
-      return;
-    }
-    const today = moment();
-    const lastService = moment(services[0]);
-    return today.diff(lastService, "week");
-  };
-
-  const getNumOfPlays = (song: Song): number => {
-    const today = moment();
-    const sixMonthsAgo = today.subtract(6, "months");
-    const services = (songHistory[song.id || ""] || []).filter((s) =>
-      moment(s).isAfter(sixMonthsAgo)
-    );
-    return services.length;
-  };
-
-  const handleSortChange = (cell: IHeaderCell) => () => {
-    setSortDirection((order) =>
-      order === "asc" && sortBy === cell.id ? "desc" : "asc"
-    );
-    setSortBy(cell.id);
-    setSortFn(cell.sort);
+  const handleSortChange = (cell: SongTableHeaderCell) => () => {
+    setState({
+      sortBy: cell.id,
+      sortDirection: sortDirection === 1 && sortBy === cell.id ? -1 : 1,
+      sortFn: cell.sort,
+    });
   };
 
   return (
@@ -122,29 +168,32 @@ const SongsPage: React.FC<ISongPageProps> = ({
                     align={cell.align}
                     key={cell.id}
                     sortDirection={
-                      sortBy === cell.id ? sortDirection : undefined
+                      sortBy !== cell.id
+                        ? undefined
+                        : sortDirection === 1
+                        ? "asc"
+                        : "desc"
                     }
                   >
                     <TableSortLabel
                       active={sortBy === cell.id}
-                      direction={sortBy === cell.id ? sortDirection : undefined}
+                      direction={
+                        sortBy !== cell.id
+                          ? undefined
+                          : sortDirection === 1
+                          ? "asc"
+                          : "desc"
+                      }
                       onClick={handleSortChange(cell)}
                     >
                       {cell.display}
                     </TableSortLabel>
                   </TableCell>
                 ))}
-                {/* <TableCell>
-                  <TableSortLabel>Title</TableSortLabel>
-                </TableCell> */}
-                <TableCell align="right">Artist</TableCell>
-                <TableCell align="right">Plays last 6mths</TableCell>
-                <TableCell align="right">Wks since played</TableCell>
-                <TableCell align="right">Key</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedSongs.map((song) => (
+              {rows.map((song) => (
                 <TableRow
                   key={song.id}
                   onClick={() => navigate(ROUTES.songDetail(song.id))}
@@ -152,10 +201,14 @@ const SongsPage: React.FC<ISongPageProps> = ({
                   <TableCell component="th" scope="song">
                     {song.title}
                   </TableCell>
-                  <TableCell align="right">{song.author}</TableCell>
-                  <TableCell align="right">{getNumOfPlays(song)}</TableCell>
-                  <TableCell align="right">{getWksSincePlayed(song)}</TableCell>
-                  <TableCell align="right">{song.key}</TableCell>
+                  <TableCell align="right">{song.author ?? "-"}</TableCell>
+                  <TableCell align="right">
+                    {song.playsLast6Months ?? "-"}
+                  </TableCell>
+                  <TableCell align="right">
+                    {song.wksSincePlayed ?? "-"}
+                  </TableCell>
+                  <TableCell align="right">{song.key ?? "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
